@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static io.vavr.OutputTester.*;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -1691,28 +1690,36 @@ public class CharSeqTest {
 
     @Test
     public void shouldWriteToStderr() {
-        assertThat(captureErrOut(()->CharSeq.of('1', '2', '3').stderr())).isEqualTo("1\n" +
-                "2\n" +
-                "3\n");
+        CharSeq.of('1', '2', '3').stderr();
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldHandleStderrIOException() {
-        withFailingErrOut(()->CharSeq.of('0').stderr());
+        final PrintStream originalErr = System.err;
+        try (PrintStream failingPrintStream = failingPrintStream()) {
+            System.setErr(failingPrintStream);
+            CharSeq.of('0').stderr();
+        } finally {
+            System.setErr(originalErr);
+        }
     }
 
     // -- stdout
 
     @Test
     public void shouldWriteToStdout() {
-        assertThat(captureStdOut(()->CharSeq.of('1', '2', '3').stdout())).isEqualTo("1\n" +
-                "2\n" +
-                "3\n");
+        CharSeq.of('1', '2', '3').stdout();
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldHandleStdoutIOException() {
-        withFailingStdOut(()->CharSeq.of('0').stdout());
+        final PrintStream originalOut = System.out;
+        try (PrintStream failingPrintStream = failingPrintStream()) {
+            System.setOut(failingPrintStream);
+            CharSeq.of('0').stdout();
+        } finally {
+            System.setOut(originalOut);
+        }
     }
 
     // -- sum

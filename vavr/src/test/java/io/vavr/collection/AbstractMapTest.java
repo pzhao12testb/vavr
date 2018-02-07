@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -486,32 +486,9 @@ public abstract class AbstractMapTest extends AbstractTraversableTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void shouldReturnKeySet() {
+    public void shouldReturnsKeySet() {
         final io.vavr.collection.Set<Integer> actual = mapOfTuples(Tuple.of(1, 11), Tuple.of(2, 22), Tuple.of(3, 33)).keySet();
         assertThat(actual).isEqualTo(io.vavr.collection.HashSet.of(1, 2, 3));
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void shouldReturnKeysIterator() {
-        final Iterator<Integer> actual = mapOfTuples(Tuple.of(1, 11), Tuple.of(2, 22), Tuple.of(3, 33)).keysIterator();
-        assertThat(actual).isEqualTo(io.vavr.collection.Iterator.of(1, 2, 3));
-    }
-
-    // -- values
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void shouldReturnValuesSeq() {
-        final Seq<Integer> actual = mapOfTuples(Tuple.of(1, 11), Tuple.of(2, 22), Tuple.of(3, 33)).values();
-        assertThat(actual).isEqualTo(io.vavr.collection.Iterator.of(11, 22, 33));
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void shouldReturnValuesIterator() {
-        final Iterator<Integer> actual = mapOfTuples(Tuple.of(1, 11), Tuple.of(2, 22), Tuple.of(3, 33)).valuesIterator();
-        assertThat(actual).isEqualTo(io.vavr.collection.Iterator.of(11, 22, 33));
     }
 
     // -- biMap

@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -778,17 +778,6 @@ public final class LinkedHashMap<K, V> implements Map<K, V>, Serializable {
         return Maps.put(this, key, value, merge);
     }
 
-    /**
-     * Associates the specified value with the specified key in this map.
-     * If the map previously contained a mapping for the key, the old value is
-     * replaced by the specified value.
-     * <p>
-     * Note that this method has a worst-case linear complexity.
-     *
-     * @param key   key with which the specified value is to be associated
-     * @param value value to be associated with the specified key
-     * @return A new Map containing these elements and that entry.
-     */
     @Override
     public LinkedHashMap<K, V> put(K key, V value) {
         final Queue<Tuple2<K, V>> newList;

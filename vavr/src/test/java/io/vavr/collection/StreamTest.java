@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -351,13 +351,6 @@ public class StreamTest extends AbstractLinearSeqTest {
     @Test
     public void shouldGenerateInfiniteStreamBasedOnSupplierWithAccessToPreviousValue() {
         assertThat(Stream.iterate(2, (i) -> i + 2).take(3).reduce((i, j) -> i + j)).isEqualTo(12);
-    }
-
-    // -- static iterate(Supplier<Option>)
-
-    @Test
-    public void shouldGenerateInfiniteStreamBasedOnOptionSupplier() {
-        assertThat(Stream.iterate(() -> Option.of(1)).take(5).reduce((i, j) -> i + j)).isEqualTo(5);
     }
 
     // -- static continually (T)

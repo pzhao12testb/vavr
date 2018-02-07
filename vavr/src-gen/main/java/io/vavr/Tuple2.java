@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ package io.vavr;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
-import io.vavr.control.HashCodes;
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.Comparator;
@@ -42,6 +41,7 @@ import java.util.function.Function;
  * @param <T2> type of the 2nd element
  * @author Daniel Dietrich
  */
+@javax.annotation.Generated("Generator.scala")
 public final class Tuple2<T1, T2> implements Tuple, Comparable<Tuple2<T1, T2>>, Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -262,7 +262,7 @@ public final class Tuple2<T1, T2> implements Tuple, Comparable<Tuple2<T1, T2>>, 
 
     @Override
     public int hashCode() {
-        return HashCodes.hash(_1, _2);
+        return Objects.hash(_1, _2);
     }
 
     @Override

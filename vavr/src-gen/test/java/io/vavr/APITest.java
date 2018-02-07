@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ package io.vavr;
 \*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
 
 import static io.vavr.API.*;
-import static io.vavr.OutputTester.captureStdOut;
 import static io.vavr.Patterns.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -72,22 +71,22 @@ public class APITest {
 
     @Test
     public void shouldCallprint_Object() {
-        assertThat(captureStdOut(()->print("ok"))).isEqualTo("ok");
+        print("ok");
     }
 
     @Test
     public void shouldCallprintf() {
-        assertThat(captureStdOut(()->printf("%s", "ok"))).isEqualTo("ok");
+        printf("%s", "ok");
     }
 
     @Test
     public void shouldCallprintln_Object() {
-        assertThat(captureStdOut(()->println("ok"))).isEqualTo("ok\n");
+        println("ok");
     }
 
     @Test
     public void shouldCallprintln() {
-        assertThat(captureStdOut(()->println())).isEqualTo("\n");
+        println();
     }
 
     //

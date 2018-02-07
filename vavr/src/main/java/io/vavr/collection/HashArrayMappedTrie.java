@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,9 @@ package io.vavr.collection;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashArrayMappedTrieModule.EmptyNode;
-import io.vavr.control.HashCodes;
 import io.vavr.control.Option;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Objects;
 
 import static java.lang.Integer.bitCount;
@@ -62,15 +60,7 @@ interface HashArrayMappedTrie<K, V> extends Iterable<Tuple2<K, V>> {
     @Override
     Iterator<Tuple2<K, V>> iterator();
 
-    /**
-     * Provide unboxed access to the keys in the trie.
-     */
     Iterator<K> keysIterator();
-
-    /**
-     * Provide unboxed access to the values in the trie.
-     */
-    Iterator<V> valuesIterator();
 }
 
 interface HashArrayMappedTrieModule {
@@ -228,18 +218,13 @@ interface HashArrayMappedTrieModule {
         }
 
         @Override
-        public Iterator<V> valuesIterator() {
-            return nodes().map(LeafNode::value);
-        }
-
-        @Override
         public Option<V> get(K key) {
-            return lookup(0, HashCodes.hash(key), key);
+            return lookup(0, Objects.hashCode(key), key);
         }
 
         @Override
         public V getOrElse(K key, V defaultValue) {
-            return lookup(0, HashCodes.hash(key), key, defaultValue);
+            return lookup(0, Objects.hashCode(key), key, defaultValue);
         }
 
         @Override
@@ -249,13 +234,39 @@ interface HashArrayMappedTrieModule {
 
         @Override
         public HashArrayMappedTrie<K, V> put(K key, V value) {
-            return modify(0, HashCodes.hash(key), key, value, PUT);
+            return modify(0, Objects.hashCode(key), key, value, PUT);
         }
 
         @Override
         public HashArrayMappedTrie<K, V> remove(K key) {
-            return modify(0, HashCodes.hash(key), key, null, REMOVE);
+            return modify(0, Objects.hashCode(key), key, null, REMOVE);
         }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public final boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            } else if (o instanceof HashArrayMappedTrie) {
+                final HashArrayMappedTrie<Object, ?> that = (HashArrayMappedTrie<Object, ?>) o;
+                if (this.size() == that.size()) {
+                    for (Tuple2<K, V> thisEntry : this) {
+                        Option<?> thatValue = that.get(thisEntry._1);
+                        if (!thatValue.isDefined() || !thatValue.get().equals(thisEntry._2)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public abstract int hashCode();
 
         @Override
         public final String toString() {
@@ -311,6 +322,11 @@ interface HashArrayMappedTrieModule {
         @Override
         public Iterator<LeafNode<K, V>> nodes() {
             return Iterator.empty();
+        }
+
+        @Override
+        public int hashCode() {
+            return 1;
         }
 
         /**
@@ -413,6 +429,11 @@ interface HashArrayMappedTrieModule {
         @Override
         public Iterator<LeafNode<K, V>> nodes() {
             return Iterator.of(this);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(hash, value);
         }
 
         @Override
@@ -561,6 +582,17 @@ interface HashArrayMappedTrieModule {
         }
 
         @Override
+        public int hashCode() {
+            Iterator<LeafNode<K, V>> it = nodes();
+            int hashCode = 0;
+            while (it.hasNext()) {
+                final LeafNode<K, V> node = it.next();
+                hashCode += Objects.hash(node.key(), node.value());
+            }
+            return hashCode;
+        }
+
+        @Override
         int hash() {
             return hash;
         }
@@ -689,6 +721,11 @@ interface HashArrayMappedTrieModule {
         public int size() {
             return size;
         }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(subNodes);
+        }
     }
 
     /**
@@ -771,6 +808,11 @@ interface HashArrayMappedTrieModule {
         @Override
         public int size() {
             return size;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(subNodes);
         }
     }
 }

@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -829,26 +829,22 @@ public interface Seq<T> extends Traversable<T>, PartialFunction<Integer, T>, Ser
 
     /**
      * Circular rotates the elements by the specified distance to the left direction.
-     * 
+     *<p>
      * <pre>{@code
-     * // = List(3, 4, 5, 1, 2)
-     * List.of(1, 2, 3, 4, 5).rotateLeft(2);
+     * Seq.of(1, 2, 3, 4, 5).rotateLeft(2);//[3, 4, 5, 1, 2]
      * }</pre>
      *
-     * @param n distance of left rotation
      * @return the rotated elements.
      */
     Seq<T> rotateLeft(int n);
 
     /**
      * Circular rotates the elements by the specified distance to the right direction.
-     *
+     *<p>
      * <pre>{@code
-     * // = List(4, 5, 1, 2, 3)
-     * List.of(1, 2, 3, 4, 5).rotateRight(2);
+     * Seq.of(1, 2, 3, 4, 5).rotateRight(2);//[4, 5, 1, 2, 3]
      * }</pre>
      *
-     * @param n distance of right rotation
      * @return the rotated elements.
      */
     Seq<T> rotateRight(int n);

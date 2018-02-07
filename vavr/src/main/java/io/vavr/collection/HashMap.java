@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -689,11 +689,6 @@ public final class HashMap<K, V> implements Map<K, V>, Serializable {
     }
 
     @Override
-    public Iterator<K> keysIterator() {
-        return trie.keysIterator();
-    }
-
-    @Override
     public Tuple2<K, V> last() {
         return Collections.last(this);
     }
@@ -926,13 +921,8 @@ public final class HashMap<K, V> implements Map<K, V>, Serializable {
     }
 
     @Override
-    public Stream<V> values() {
-        return trie.valuesIterator().toStream();
-    }
-
-    @Override
-    public Iterator<V> valuesIterator() {
-        return trie.valuesIterator();
+    public Seq<V> values() {
+        return map(Tuple2::_2);
     }
 
     @Override

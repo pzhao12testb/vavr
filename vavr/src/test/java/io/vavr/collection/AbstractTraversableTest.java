@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import static io.vavr.API.*;
-import static io.vavr.OutputTester.*;
 import static java.lang.System.lineSeparator;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparingInt;
@@ -1383,6 +1382,9 @@ public abstract class AbstractTraversableTest extends AbstractValueTest {
 
     @Test
     public void shouldCalculateMinOfFloatsContainingNaN() {
+
+        System.out.println(TreeSet.of(1.0f, Float.NaN, 2.0f));
+
         assertThat(of(1.0f, Float.NaN, 2.0f).min().get()).isEqualTo(Float.NaN);
     }
 
@@ -2041,30 +2043,50 @@ public abstract class AbstractTraversableTest extends AbstractValueTest {
 
     // -- stderr
 
+    private final static Object STD_ERR_LOCK = new Object();
+
     @Test
     public void shouldWriteToStderr() {
-        assertThat(captureErrOut(()->of(1, 2, 3).stderr())).isEqualTo("1\n" +
-                "2\n" +
-                "3\n");
+        synchronized (STD_ERR_LOCK) {
+            of(1, 2, 3).stderr();
+        }
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldHandleStderrIOException() {
-        withFailingErrOut(()->of(0).stderr());
+        synchronized (STD_ERR_LOCK) {
+            final PrintStream originalErr = System.err;
+            try (PrintStream failingPrintStream = failingPrintStream()) {
+                System.setErr(failingPrintStream);
+                of(0).stderr();
+            } finally {
+                System.setErr(originalErr);
+            }
+        }
     }
 
     // -- stdout
 
+    private final static Object STD_OUT_LOCK = new Object();
+
     @Test
     public void shouldWriteToStdout() {
-        assertThat(captureStdOut(()->of(1, 2, 3).stdout())).isEqualTo("1\n" +
-                "2\n" +
-                "3\n");
+        synchronized (STD_OUT_LOCK) {
+            of(1, 2, 3).stdout();
+        }
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldHandleStdoutIOException() {
-        withFailingStdOut(()->of(0).stdout());
+        synchronized (STD_OUT_LOCK) {
+            final PrintStream originalOut = System.out;
+            try (PrintStream failingPrintStream = failingPrintStream()) {
+                System.setOut(failingPrintStream);
+                of(0).stdout();
+            } finally {
+                System.setOut(originalOut);
+            }
+        }
     }
 
     // -- PrintStream
@@ -2829,6 +2851,24 @@ public abstract class AbstractTraversableTest extends AbstractValueTest {
     }
 
     // helpers
+
+    private static PrintStream failingPrintStream() {
+        return new PrintStream(new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                throw new IOException();
+            }
+        });
+    }
+
+    private static PrintWriter failingPrintWriter() {
+        return new PrintWriter(new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                throw new IOException();
+            }
+        });
+    }
 
     /**
      * Wraps a String in order to ensure that it is not Comparable.

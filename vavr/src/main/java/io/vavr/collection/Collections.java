@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ package io.vavr.collection;
 
 import io.vavr.collection.JavaConverters.ChangePolicy;
 import io.vavr.collection.JavaConverters.ListView;
-import io.vavr.control.HashCodes;
 import io.vavr.control.Option;
 
 import java.util.*;
@@ -213,7 +212,7 @@ final class Collections {
         } else {
             int hashCode = 1;
             for (Object o : iterable) {
-                hashCode = accumulator.applyAsInt(hashCode, HashCodes.hash(o));
+                hashCode = accumulator.applyAsInt(hashCode, Objects.hashCode(o));
             }
             return hashCode;
         }

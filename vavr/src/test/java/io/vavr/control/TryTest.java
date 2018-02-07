@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 package io.vavr.control;
 
 import static io.vavr.API.*;
+import static io.vavr.Predicates.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -36,7 +37,6 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -85,38 +85,47 @@ public class TryTest extends AbstractValueTest {
 
     @Test
     public void shouldExecuteAndFinallyOnSuccess(){
-        final AtomicInteger count = new AtomicInteger();
-        Try.run(() -> count.set(0)).andFinally(() -> count.set(1));
-        assertThat(count.get()).isEqualTo(1);
+        MutableInteger count = new MutableInteger(0);
+
+        Try.run(() -> count.setValue(0)).andFinally(() -> count.setValue(1));
+
+        assertThat(count.getValue()).isEqualTo(1);
     }
 
     @Test
     public void shouldExecuteAndFinallyTryOnSuccess(){
-        final AtomicInteger count = new AtomicInteger();
-        Try.run(() -> count.set(0)).andFinallyTry(() -> count.set(1));
-        assertThat(count.get()).isEqualTo(1);
+        MutableInteger count = new MutableInteger(0);
+
+        Try.run(() -> count.setValue(0)).andFinallyTry(() -> count.setValue(1));
+
+        assertThat(count.getValue()).isEqualTo(1);
     }
 
     @Test
     public void shouldExecuteAndFinallyOnFailure(){
-        final AtomicInteger count = new AtomicInteger();
-        Try.run(() -> { throw new IllegalStateException(FAILURE); })
-                .andFinally(() -> count.set(1));
-        assertThat(count.get()).isEqualTo(1);
+        MutableInteger count = new MutableInteger(0);
+
+        Try.run(() -> {throw new IllegalStateException(FAILURE);})
+                .andFinally(() -> count.setValue(1));
+
+        assertThat(count.getValue()).isEqualTo(1);
     }
 
     @Test
     public void shouldExecuteAndFinallyTryOnFailure(){
-        final AtomicInteger count = new AtomicInteger();
-        Try.run(() -> { throw new IllegalStateException(FAILURE); })
-                .andFinallyTry(() -> count.set(1));
-        assertThat(count.get()).isEqualTo(1);
+        MutableInteger count = new MutableInteger(0);
+
+        Try.run(() -> {throw new IllegalStateException(FAILURE);})
+                .andFinallyTry(() -> count.setValue(1));
+
+        assertThat(count.getValue()).isEqualTo(1);
     }
 
     @Test
     public void shouldExecuteAndFinallyTryOnFailureWithFailure(){
-        final Try<Object> result = Try.of(() -> { throw new IllegalStateException(FAILURE); })
-                .andFinallyTry(() -> { throw new IllegalStateException(FAILURE); });
+        Try<Object> result = Try.of(() -> {throw new IllegalStateException(FAILURE);})
+                .andFinallyTry(() -> {throw new IllegalStateException(FAILURE);});
+
         assertThat(result.isFailure());
     }
 
@@ -204,25 +213,25 @@ public class TryTest extends AbstractValueTest {
 
     @Test
     public void shouldReturnSelfOnOrElseIfSuccess() {
-        final Try<Integer> success = Try.success(42);
+        Try<Integer> success = Try.success(42);
         assertThat(success.orElse(Try.success(0))).isSameAs(success);
     }
 
     @Test
     public void shouldReturnSelfOnOrElseSupplierIfSuccess() {
-        final Try<Integer> success = Try.success(42);
+        Try<Integer> success = Try.success(42);
         assertThat(success.orElse(() -> Try.success(0))).isSameAs(success);
     }
 
     @Test
     public void shouldReturnAlternativeOnOrElseIfFailure() {
-        final Try<Integer> success = Try.success(42);
+        Try<Integer> success = Try.success(42);
         assertThat(Try.failure(new RuntimeException()).orElse(success)).isSameAs(success);
     }
 
     @Test
     public void shouldReturnAlternativeOnOrElseSupplierIfFailure() {
-        final Try<Integer> success = Try.success(42);
+        Try<Integer> success = Try.success(42);
         assertThat(Try.failure(new RuntimeException()).orElse(() -> success)).isSameAs(success);
     }
 
@@ -261,7 +270,7 @@ public class TryTest extends AbstractValueTest {
 
     @Test
     public void shouldReturnValueIfSuccess() {
-        final Try<Integer> success = Try.success(42);
+        Try<Integer> success = Try.success(42);
         assertThat(success.fold(t -> {
             throw new AssertionError("Not expected to be called");
         }, Function.identity())).isEqualTo(42);
@@ -269,7 +278,7 @@ public class TryTest extends AbstractValueTest {
 
     @Test
     public void shouldReturnAlternateValueIfFailure() {
-        final Try<Integer> success = Try.failure(new NullPointerException("something was null"));
+        Try<Integer> success = Try.failure(new NullPointerException("something was null"));
         assertThat(success.<Integer>fold(t -> 42, a -> {
             throw new AssertionError("Not expected to be called");
         })).isEqualTo(42);
@@ -370,7 +379,7 @@ public class TryTest extends AbstractValueTest {
         }
 
         @Override
-        public void close() {
+        public void close() throws Exception {
             isClosed = true;
         }
     }
@@ -618,17 +627,17 @@ public class TryTest extends AbstractValueTest {
     // -- Failure.Cause
 
     @Test(expected = InterruptedException.class)
-    public void shouldRethrowInterruptedException() {
+    public void shouldRethrowInterruptedException() throws Exception {
         Try.failure(new InterruptedException());
     }
 
     @Test(expected = OutOfMemoryError.class)
-    public void shouldRethrowOutOfMemoryError() {
+    public void shouldRethrowOutOfMemoryError() throws Exception {
         Try.failure(new OutOfMemoryError());
     }
 
     @Test
-    public void shouldDetectNonFatalException() {
+    public void shouldDetectNonFatalException() throws Exception {
         final Exception exception = new Exception();
         assertThat(Try.failure(exception).getCause()).isSameAs(exception);
     }
@@ -677,7 +686,7 @@ public class TryTest extends AbstractValueTest {
 
     @Test
     public void shouldReturnEqualsOnFatal() {
-        final UnknownError error = new UnknownError();
+        UnknownError error = new UnknownError();
         try {
             Try.of(() -> {
                 throw error;
@@ -969,30 +978,11 @@ public class TryTest extends AbstractValueTest {
         assertThat(failure().toEither(() -> "test").isLeft()).isTrue();
     }
 
-
-    // -- toValidation
-
-    @Test
-    public void shouldConvertFailureToValidation() {
-        final Try<Object> failure = failure();
-        final Validation<Throwable, Object> invalid = failure.toValidation();
-        assertThat(invalid.getErrors().get(0)).isEqualTo(failure.getCause());
-        assertThat(invalid.isInvalid()).isTrue();
-    }
-
-    @Test
-    public void shouldConvertFailureToInvalidValidation() {
-        final Try<Object> failure = failure();
-        final Validation<String, Object> validation = failure.toValidation(e -> e.toString());
-        assertThat(validation.getErrors().get(0)).isEqualTo(failure.getCause().toString());
-        assertThat(validation.isInvalid()).isTrue();
-    }
-
     // -- toCompletableFuture
 
     @Test
     public void shouldConvertSuccessToCompletableFuture() {
-        final CompletableFuture<String> future = success().toCompletableFuture();
+        CompletableFuture<String> future = success().toCompletableFuture();
         assertThat(future.isDone());
         assertThat(Try.of(future::get).get()).isEqualTo(success().get());
     }
@@ -1012,12 +1002,12 @@ public class TryTest extends AbstractValueTest {
 
     @Test
     public void shouldConvertFailureToValidationLeft() {
-        assertThat(failure().toValid("test").isInvalid()).isTrue();
+        assertThat(failure().toValidation("test").isInvalid()).isTrue();
     }
 
     @Test
     public void shouldConvertFailureToValidationLeftSupplier() {
-        assertThat(failure().toValid(() -> "test").isInvalid()).isTrue();
+        assertThat(failure().toValidation(() -> "test").isInvalid()).isTrue();
     }
 
     // -- toJavaOptional
@@ -1054,7 +1044,7 @@ public class TryTest extends AbstractValueTest {
     }
 
     @Test
-    public void shouldReturnIdentityWhenFilterWithErrorProviderOnFailure() {
+    public void shouldReturnIdentityWhenFilterWithErrorProviderOnFailure() throws Exception {
         final Try<String> identity = failure();
         assertThat(identity.filter(s -> false, ignored -> new IllegalArgumentException())).isEqualTo(identity);
     }
@@ -1216,8 +1206,8 @@ public class TryTest extends AbstractValueTest {
 
     @Test
     public void shouldConvertListOfSuccessToTryOfList() {
-        final List<Try<String>> tries = Arrays.asList(Try.success("a"), Try.success("b"), Try.success("c"));
-        final Try<Seq<String>> reducedTry = Try.sequence(tries);
+        List<Try<String>> tries = Arrays.asList(Try.success("a"), Try.success("b"), Try.success("c"));
+        Try<Seq<String>> reducedTry = Try.sequence(tries);
         assertThat(reducedTry instanceof Try.Success).isTrue();
         assertThat(reducedTry.get().size()).isEqualTo(3);
         assertThat(reducedTry.get().mkString()).isEqualTo("abc");
@@ -1225,17 +1215,17 @@ public class TryTest extends AbstractValueTest {
 
     @Test
     public void shouldConvertListOfFailureToTryOfList() {
-        final Throwable t = new RuntimeException("failure");
-        final List<Try<String>> tries = Arrays.asList(Try.failure(t), Try.failure(t), Try.failure(t));
-        final Try<Seq<String>> reducedTry = Try.sequence(tries);
+        Throwable t = new RuntimeException("failure");
+        List<Try<String>> tries = Arrays.asList(Try.failure(t), Try.failure(t), Try.failure(t));
+        Try<Seq<String>> reducedTry = Try.sequence(tries);
         assertThat(reducedTry instanceof Try.Failure).isTrue();
     }
 
     @Test
     public void shouldConvertListOfMixedTryToTryOfList() {
-        final Throwable t = new RuntimeException("failure");
-        final List<Try<String>> tries = Arrays.asList(Try.success("a"), Try.failure(t), Try.success("c"));
-        final Try<Seq<String>> reducedTry = Try.sequence(tries);
+        Throwable t = new RuntimeException("failure");
+        List<Try<String>> tries = Arrays.asList(Try.success("a"), Try.failure(t), Try.success("c"));
+        Try<Seq<String>> reducedTry = Try.sequence(tries);
         assertThat(reducedTry instanceof Try.Failure).isTrue();
     }
 
@@ -1251,8 +1241,7 @@ public class TryTest extends AbstractValueTest {
 
     @Test
     public void shouldDetectSuccessOfRunnable() {
-        //noinspection ResultOfMethodCallIgnored
-        assertThat(Try.run(() -> String.valueOf("side-effect")).isSuccess()).isTrue();
+        assertThat(Try.run(() -> System.out.println("side-effect")).isSuccess()).isTrue();
     }
 
     @Test
@@ -1317,16 +1306,6 @@ public class TryTest extends AbstractValueTest {
     @Test
     public void shouldConvertSuccessToEither() {
         assertThat(success().toEither().isRight()).isTrue();
-    }
-
-    @Test
-    public void shouldConvertSuccessToValidValidation() {
-        assertThat(success().toValidation().isValid()).isTrue();
-    }
-
-    @Test
-    public void shouldConvertSuccessToValidValidationUsingConversionWithMapper() {
-        assertThat(success().toValidation(Throwable::getMessage).isValid()).isTrue();
     }
 
     @Test
@@ -1564,6 +1543,22 @@ public class TryTest extends AbstractValueTest {
 
     private Try<String> success() {
         return Try.of(() -> "ok");
+    }
+
+    private class MutableInteger {
+        private int value;
+
+        public MutableInteger(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
     }
 
     // -- spliterator

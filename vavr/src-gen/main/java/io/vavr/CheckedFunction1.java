@@ -3,7 +3,7 @@
  *  \  \/  /  /\  \  \/  /  /
  *   \____/__/  \__\____/__/
  *
- * Copyright 2014-2018 Vavr, http://vavr.io
+ * Copyright 2014-2017 Vavr, http://vavr.io
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import java.util.function.Function;
  * @author Daniel Dietrich
  */
 @FunctionalInterface
+@javax.annotation.Generated("Generator.scala")
 public interface CheckedFunction1<T1, R> extends Lambda<R> {
 
     /**
@@ -253,6 +254,7 @@ public interface CheckedFunction1<T1, R> extends Lambda<R> {
     }
 }
 
+@javax.annotation.Generated("Generator.scala")
 interface CheckedFunction1Module {
 
     // DEV-NOTE: we do not plan to expose this as public API
